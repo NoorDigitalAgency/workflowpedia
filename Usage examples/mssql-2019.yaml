@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  start:
+  job:
     name: Start SQL Server
     runs-on: ubuntu-20.04
     services:
@@ -13,8 +13,7 @@ jobs:
         ports:
           - 1433:1433
         env:
-          MSSQL_SA_USERNAME: <the user id>
-          MSSQL_SA_PASSWORD: <the strong password>
+          MSSQL_PASSWORD: <the password>
         options: --health-cmd sqlserver_isready
     steps:
-      - run: echo 'Access the SQL Server on "Data Source=localhost,1433;Initial Catalog=<the database name>;User ID=<the user id>;Password=<the strong password>;"'
+      - run: echo 'Access the SQL Server on "Data Source=localhost,1433;Initial Catalog=<the database name>;User ID=sa;Password=<the password>;"'
