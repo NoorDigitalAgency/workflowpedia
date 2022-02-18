@@ -1,0 +1,20 @@
+name: Example of using SQL Server 2019 in a job
+
+on:
+  workflow_dispatch:
+
+jobs:
+  start:
+    name: Start SQL Server
+    runs-on: ubuntu-20.04
+    services:
+      sql-server:
+        image: noorteam/mssql-docker:2019-focal
+        ports:
+          - 1433:1433
+        env:
+          MSSQL_SA_USERNAME: <the user id>
+          MSSQL_SA_PASSWORD: <the strong password>
+        options: --health-cmd sqlserver_isready
+    steps:
+      - run: echo 'Access the SQL Server on "Data Source=localhost,1433;Initial Catalog=<the database name>;User ID=<the user id>;Password=<the strong password>;"'
