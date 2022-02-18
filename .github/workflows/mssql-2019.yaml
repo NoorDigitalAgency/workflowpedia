@@ -23,3 +23,5 @@ jobs:
           --health-interval 2s
           --health-timeout 5s
           --health-retries 15
+    steps:
+      - run: echo 'SQL Server Started'
