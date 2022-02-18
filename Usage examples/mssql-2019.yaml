@@ -13,7 +13,7 @@ jobs:
         ports:
           - 1433:1433
         env:
-          MSSQL_PASSWORD: <the password>
+          MSSQL_SA_PASSWORD: <the password>
         options: --health-cmd sqlserver_isready
     steps:
       - run: echo 'Access the SQL Server on "Data Source=localhost,1433;Initial Catalog=<the database name>;User ID=sa;Password=<the password>;"'
