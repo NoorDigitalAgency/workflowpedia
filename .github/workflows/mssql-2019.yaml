@@ -1,0 +1,25 @@
+name: MS SQL Server 2019
+
+on:
+  workflow_call:
+    inputs:
+      sa-password:
+        required: true
+        type: string
+
+jobs:
+  start:
+    name: Start SQL Server
+    runs-on: ubuntu-20.04
+    services:
+      sql-server:
+        image: noorteam/mssql-docker:2019-focal
+        ports:
+          - 1433:1433
+        env:
+          MSSQL_SA_PASSWORD: ${{ inputs.sa-password }}
+        options: >-
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P '${{ inputs.sa-password }}' -d tempdb -Q \"SELECT @@version;\""
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
