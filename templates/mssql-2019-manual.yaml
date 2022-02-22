@@ -11,14 +11,21 @@ jobs:
     # One example of nessecity of this approch is when we need to bind a volume to the container
     steps:
     
+      # The binding directories have to be created before docker run since the current user needs the ownership
+      - run: |
+          mkdir /home/runner/work/scripts/
+          mkdir /home/runner/work/data/
+      
       # This is where we start the container
-      # It is possible to bind a volume to a folder using this approch 
+      # It is possible to bind a volume to a folder using this approch
       - run: |
           docker run --name "sqlserver" -d -p "1433:1433" -e "DATABASE_USERNAME=oskol" -e "DATABASE_NAMES=postnoor,golight,lynx" \
-          -v /home/runner/work/scripts/:/tmp/scripts/ noorteam/mssql-docker:2019-focal
+          -v /home/runner/work/scripts/:/tmp/scripts/ -v /home/runner/work/data/:/var/opt/mssql/data/ noorteam/mssql-docker:2019-focal
     
       # We need to wait for the last database in the list to get created, since the databases get created in the same order as provided in the list
-      - run: docker exec "sqlserver" sh -c 'while true;do sqlcmd -S "localhost" -U "oskol" -P "" -d "lynx" -Q "SELECT @@version";result=$?;if [ $result -eq 0 ];then break;else sleep 1;fi;done'
+      - run: |
+          docker exec "sqlserver" sh -c 'while true;do sqlcmd -S "localhost" -U "oskol" -P "" -d "lynx" \
+          -Q "SELECT @@version";result=$?;if [ $result -eq 0 ];then break;else sleep 1;fi;done'
     
       # This is the connection string that can be used in C# for instance
       - run: echo '"Data Source=localhost,1433;Database=postnoor;User ID=oskol";'
@@ -28,7 +35,7 @@ jobs:
       - run: docker exec "sqlserver" sqlcmd -S "localhost" -U "oskol" -d "postnoor" -P "" -Q "SELECT @@version;"
       
       # Creating a sample script file inside the folder bound to the container. The file can be part of the repository which will be available after calling actions/checkout@2
-      - run: echo 'USE [postnoor]; CREATE TABLE [Values] (Id INT PRIMARY KEY); INSERT INTO [Values] VALUES(69); SELECT * FROM [VALUES];' > ./scripts/script.sql
+      - run: echo 'USE [postnoor]; CREATE TABLE [Values] (Id INT PRIMARY KEY); INSERT INTO [Values] VALUES(69); SELECT * FROM [VALUES];' > /home/runner/work/scripts/script.sql
       
       # Running SQL commands from the script file
       # "sqlserver" is the name that we chose in the docker run step
