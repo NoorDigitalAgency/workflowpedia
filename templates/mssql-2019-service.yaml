@@ -1,0 +1,20 @@
+name: SQL Server 2019 Service
+
+on:
+  workflow_dispatch:
+  
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    services:
+      sql-server:
+        image: noorteam/mssql-docker:2019-focal
+        ports:
+          - 1433:1433
+        env:
+          DATABASE_USERNAME: oskol # Default: user
+          DATABASE_NAMES: postnoor, golight, lynx # Default: database
+
+    steps:
+      - run: docker exec "${{ job.services.sql-server.id }}" sqlcmd -S "localhost" -U oskol -d postnoor -P "" -Q "SELECT @@version;" # sh -c "echo a && echo b"
+      - run: echo 'Connection string: "Data Source=localhost,1433;Database=postnoor;Password=;User ID=oskol";
