@@ -14,6 +14,7 @@ jobs:
         env:
           DATABASE_USERNAME: oskol # Default: user
           DATABASE_NAMES: postnoor, golight, lynx # Default: database
+        options: --health-cmd sqlserver_isready
 
     steps:
       - run: echo 'Connection string: "Data Source=localhost,1433;Database=postnoor;User ID=oskol";' # This the connection string that can be used in C# for instance
