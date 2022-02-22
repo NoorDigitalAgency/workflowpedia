@@ -7,26 +7,29 @@ jobs:
   test:
     runs-on: ubuntu-20.04
 
-    # NOTE: Unless nessecerry, use the mssql-2019-service.yaml approch
+    # NOTE: Unless nessecerry don't use this approch, instead use the mssql-2019-service.yaml approch
+    # One example of nessecity of this approch is when we need to bind a volume to the container
     steps:
     
       # This is where we start the container
-      - run: docker run --name "sqlserver" -d -p "1433:1433" -e "DATABASE_USERNAME=oskol" -e "DATABASE_NAMES=postnoor,golight,lynx" --health-cmd "sqlserver_isready" --health-interval="5s" --health-retries="12" --health-timeout="2s" noorteam/mssql-docker:2019-focal
+      # It is possible to bind a volume to a folder using this approch 
+      - run: |
+          docker run --name "sqlserver" -d -p "1433:1433" -e "DATABASE_USERNAME=oskol" -e "DATABASE_NAMES=postnoor,golight,lynx" \
+          -v /home/runner/work/scripts/:/tmp/scripts/ noorteam/mssql-docker:2019-focal
+    
+      # We need to wait for the last database in the list to get created, since the databases get created in the same order as provided in the list
+      - run: docker exec "sqlserver" sh -c 'while true;do sqlcmd -S "localhost" -U "oskol" -P "" -d "lynx" -Q "SELECT @@version";result=$?;if [ $result -eq 0 ];then break;else sleep 1;fi;done'
     
       # This is the connection string that can be used in C# for instance
       - run: echo '"Data Source=localhost,1433;Database=postnoor;User ID=oskol";'
       
-      # If multiple commands intended must be run like: sh -c "sqlcmd -S localhost -U oskol -d postnoor -P '' -Q 'SELECT @@version;' && echo 'Done!'"
+      # If multiple commands intended must be run like: sh -c "sqlcmd -S 'localhost' -U 'oskol' -d postnoor -P '' -Q 'SELECT @@version;' && echo 'Done!'"
       # "sqlserver" is the name that we chose in the docker run step
-      - run: docker exec "sqlserver" sqlcmd -S "localhost" -U oskol -d postnoor -P "" -Q "SELECT @@version;"
+      - run: docker exec "sqlserver" sqlcmd -S "localhost" -U "oskol" -d "postnoor" -P "" -Q "SELECT @@version;"
       
-      # Creating a sample script file. This can be part of the repository which will be available after calling actions/checkout@2
-      - run: echo 'USE [postnoor]; CREATE TABLE [Values] (Id INT PRIMARY KEY); INSERT INTO [Values] VALUES(69); SELECT * FROM [VALUES];' > script.sql
-      
-      # Copying the sample script file to the SQL Server's container. This can also be a folder
-      # "sqlserver" is the name that we chose in the docker run step
-      - run: docker cp ./script.sql "sqlserver":/tmp
+      # Creating a sample script file inside the folder bound to the container. The file can be part of the repository which will be available after calling actions/checkout@2
+      - run: echo 'USE [postnoor]; CREATE TABLE [Values] (Id INT PRIMARY KEY); INSERT INTO [Values] VALUES(69); SELECT * FROM [VALUES];' > ./scripts/script.sql
       
       # Running SQL commands from the script file
       # "sqlserver" is the name that we chose in the docker run step
-      - run: docker exec "sqlserver" sqlcmd -S "localhost" -U oskol -d postnoor -P "" -i /tmp/script.sql
+      - run: docker exec "sqlserver" sqlcmd -S "localhost" -U "oskol" -d "postnoor" -P "" -i "/tmp/scripts/script.sql"
