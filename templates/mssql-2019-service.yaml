@@ -17,7 +17,7 @@ jobs:
         options: --health-cmd sqlserver_isready
 
     steps:
-      - run: echo 'Connection string: "Data Source=localhost,1433;Database=postnoor;User ID=oskol";' # This the connection string that can be used in C# for instance
+      - run: echo '"Data Source=localhost,1433;Database=postnoor;User ID=oskol";' # This is the connection string that can be used in C# for instance
       - run: docker exec "${{ job.services.sql-server.id }}" sqlcmd -S "localhost" -U oskol -d postnoor -P "" -Q "SELECT @@version;" # If multiple commands intended must be run like: sh -c "sqlcmd -S localhost -U oskol -d postnoor -P '' -Q 'SELECT @@version;' && echo 'Done!'"
       - run: echo 'USE [database]; CREATE TABLE [Values] (Id INT PRIMARY KEY); INSERT INTO [Values] VALUES(69); SELECT * FROM [VALUES];' > script.sql # Creating a sample script file
       - run: docker cp ./script.sql "${{ job.services.sql-server.id }}":/tmp # Copying the sample script file to the SQL Server's container
