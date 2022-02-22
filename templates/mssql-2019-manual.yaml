@@ -1,0 +1,32 @@
+name: SQL Server 2019 Manual
+
+on:
+  workflow_dispatch:
+  
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+
+    # NOTE: Unless nessecerry, use the mssql-2019-service.yaml approch
+    steps:
+    
+      # This is where we start the container
+      - run: docker run -n "sqlserver" -d -p "1433:1433" -e "DATABASE_USERNAME=oskol" -e "DATABASE_NAMES=postnoor,golight,lynx" --health-cmd "sqlserver_isready" --health-interval="5s" --health-retries="12" --health-timeout="2s"
+    
+      # This is the connection string that can be used in C# for instance
+      - run: echo '"Data Source=localhost,1433;Database=postnoor;User ID=oskol";'
+      
+      # "sqlserver" is the name that we chose in the docker run step
+      # If multiple commands intended must be run like: sh -c "sqlcmd -S localhost -U oskol -d postnoor -P '' -Q 'SELECT @@version;' && echo 'Done!'"
+      - run: docker exec "sqlserver" sqlcmd -S "localhost" -U oskol -d postnoor -P "" -Q "SELECT @@version;"
+      
+      # Creating a sample script file. This can be part of the repository which will be available after calling actions/checkout@2
+      - run: echo 'USE [postnoor]; CREATE TABLE [Values] (Id INT PRIMARY KEY); INSERT INTO [Values] VALUES(69); SELECT * FROM [VALUES];' > script.sql
+      
+      # "sqlserver" is the name that we chose in the docker run step
+      # Copying the sample script file to the SQL Server's container. This can also be a folder
+      - run: docker cp ./script.sql "sqlserver":/tmp
+      
+      # "sqlserver" is the name that we chose in the docker run step
+      # Running SQL commands from the script file
+      - run: docker exec "sqlserver" sqlcmd -S "localhost" -U oskol -d postnoor -P "" -i /tmp/script.sql
