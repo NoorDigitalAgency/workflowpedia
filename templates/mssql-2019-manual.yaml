@@ -21,9 +21,7 @@ jobs:
       - run: docker run --name "sqlserver" -d -p "1433:1433" -e "DATABASE_USERNAME=oskol" -e "DATABASE_NAMES=postnoor,golight,lynx" -v "/home/runner/work/scripts/:/tmp/scripts/" -v "/home/runner/work/data/:/var/opt/mssql/data/" noorteam/mssql-docker:2019-focal
     
       # We need to wait for the last database in the list to get created, since the databases get created in the same order as provided in the list
-      - run: |
-          docker exec "sqlserver" \
-          sh -c 'while true;do sqlcmd -S "localhost" -U "oskol" -P "" -d "lynx" -Q "SELECT @@version";result=$?;if [ $result -eq 0 ];then break;else sleep 1;fi;done'
+      - run: docker exec "sqlserver" sh -c 'while true;do sqlcmd -S "localhost" -U "oskol" -P "" -d "lynx" -Q "SELECT @@version";result=$?;if [ $result -eq 0 ];then break;else sleep 1;fi;done'
     
       # This is the connection string that can be used in C# for instance
       - run: echo '"Data Source=localhost,1433;Database=postnoor;User ID=oskol";'
