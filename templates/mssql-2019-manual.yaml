@@ -11,7 +11,7 @@ jobs:
     steps:
     
       # This is where we start the container
-      - run: docker run --name "sqlserver" -d -p "1433:1433" -e "DATABASE_USERNAME=oskol" -e "DATABASE_NAMES=postnoor,golight,lynx" --health-cmd "sqlserver_isready" --health-interval="5s" --health-retries="12" --health-timeout="2s"
+      - run: docker run --name "sqlserver" -d -p "1433:1433" -e "DATABASE_USERNAME=oskol" -e "DATABASE_NAMES=postnoor,golight,lynx" --health-cmd "sqlserver_isready" --health-interval="5s" --health-retries="12" --health-timeout="2s" noorteam/mssql-docker:2019-focal
     
       # This is the connection string that can be used in C# for instance
       - run: echo '"Data Source=localhost,1433;Database=postnoor;User ID=oskol";'
