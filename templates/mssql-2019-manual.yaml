@@ -18,9 +18,7 @@ jobs:
       
       # This is where we start the container
       # It is possible to bind a volume to a folder using this approch
-      - run: |
-          docker run --name "sqlserver" -d -p "1433:1433" -e "DATABASE_USERNAME=oskol" -e "DATABASE_NAMES=postnoor,golight,lynx" \
-          -v /home/runner/work/scripts/:/tmp/scripts/ -v /home/runner/work/data/:/var/opt/mssql/data/ noorteam/mssql-docker:2019-focal
+      - run: docker run --name "sqlserver" -d -p "1433:1433" -e "DATABASE_USERNAME=oskol" -e "DATABASE_NAMES=postnoor,golight,lynx" -v "/home/runner/work/scripts/:/tmp/scripts/" -v "/home/runner/work/data/:/var/opt/mssql/data/" noorteam/mssql-docker:2019-focal
     
       # We need to wait for the last database in the list to get created, since the databases get created in the same order as provided in the list
       - run: |
