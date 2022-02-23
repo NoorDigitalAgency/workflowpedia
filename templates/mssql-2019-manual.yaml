@@ -11,12 +11,21 @@ jobs:
     # One example of nessecity of this approch is when we need to bind a volume to the container
     steps:
     
-      # The binding directories have to be created before docker run since the current user needs the ownership
-      - run: mkdir /home/runner/work/scripts/
+      # Checkout the source before docker run if there is a folder that will be bound to a volume since the current user needs the ownership
+      - uses: actions/checkout@v2
+    
+      # Create any extra directories meant for volume binding before docker run since the current user needs the ownership
+      - run: mkdir ./files/
       
       # This is where we start the container
-      # It is possible to bind a volume to a folder using this approch
-      - run: docker run --name "sqlserver" -d -p "1433:1433" -e "DATABASE_USERNAME=oskol" -e "DATABASE_NAMES=postnoor,golight,lynx" -v "/home/runner/work/scripts/:/tmp/scripts/" noorteam/mssql-docker:2019-focal
+      # It is possible to bind volumes to folders using this approch
+      # ./scripts/ is assumed to be part of the source code which is available since the checkout
+      # ./files/ is the directory we created above
+      - run: |
+        docker run --name "sqlserver" -d -p "1433:1433" -e "DATABASE_USERNAME=oskol" -e "DATABASE_NAMES=postnoor,golight,lynx" \
+        -v "/home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/scripts/:/tmp/scripts/" \
+        -v "/home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/files/:/tmp/files/" \
+        noorteam/mssql-docker:2019-focal
     
       # We need to wait for the last database in the list to get created, since the databases get created in the same order as provided in the list
       - run: docker exec "sqlserver" sh -c 'while true;do sqlcmd -S "localhost" -U "oskol" -P "" -d "lynx" -Q "SELECT @@version";result=$?;if [ $result -eq 0 ];then break;else sleep 1;fi;done'
@@ -24,13 +33,10 @@ jobs:
       # This is the connection string that can be used in C# for instance
       - run: echo '"Data Source=localhost,1433;Database=postnoor;User ID=oskol";'
       
-      # If multiple commands intended must be run like: sh -c "sqlcmd -S 'localhost' -U 'oskol' -d postnoor -P '' -Q 'SELECT @@version;' && echo 'Done!'"
-      # "sqlserver" is the name that we chose in the docker run step
+      # If multiple commands intended, must be run like: sh -c "sqlcmd -S 'localhost' -U 'oskol' -d postnoor -P '' -Q 'SELECT @@version;' && echo 'Done!'"
+      # "sqlserver" is the name we chose in the docker run step
       - run: docker exec "sqlserver" sqlcmd -S "localhost" -U "oskol" -d "postnoor" -P "" -Q "SELECT @@version;"
       
-      # Creating a sample script file inside the folder bound to the container. The file can be part of the repository which will be available after calling actions/checkout@2
-      - run: echo 'USE [postnoor]; CREATE TABLE [Values] (Id INT PRIMARY KEY); INSERT INTO [Values] VALUES(69); SELECT * FROM [VALUES];' > /home/runner/work/scripts/script.sql
-      
-      # Running SQL commands from the script file
+      # Running the ./scripts/script.sql file which is checked out above, as part of the source code
       # "sqlserver" is the name that we chose in the docker run step
       - run: docker exec "sqlserver" sqlcmd -S "localhost" -U "oskol" -d "postnoor" -P "" -i "/tmp/scripts/script.sql"
