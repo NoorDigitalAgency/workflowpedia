@@ -17,6 +17,10 @@ jobs:
       # Create any extra directories meant for volume binding before docker run since the folder needs to exist for the binging to work
       - run: mkdir ./files/
       
+      # Assuming that in our senario, the container is supposed to write to files inside a mounted volume
+      # We have to make the directory writable for "others" (everyone), so the user inside the container can write into the directory 
+      - run: chmod o+w ./files/
+      
       # This is where we start the container
       # It is possible to bind volumes to folders using this approch
       # ./scripts/ is assumed to be part of the source code which is available since the checkout
