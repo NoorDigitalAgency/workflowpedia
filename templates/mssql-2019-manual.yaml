@@ -37,10 +37,8 @@ jobs:
       # This is the connection string that can be used in C# for instance
       - run: echo '"Data Source=localhost,1433;Database=postnoor;User ID=oskol";'
       
-      # If multiple commands intended, must be run like: sh -c "sqlcmd -S 'localhost' -U 'oskol' -d postnoor -P '' -Q 'SELECT @@version;' && echo 'Done!'"
-      # "sqlserver" is the name we chose in the docker run step
+      # If complex commands are intended, we should provide the command like this: sh -c "sqlcmd -S 'localhost' -U 'oskol' -d postnoor -P '' -Q 'SELECT @@version;' && echo 'Done!'"
       - run: docker exec "sqlserver" sqlcmd -S "localhost" -U "oskol" -d "postnoor" -P "" -Q "SELECT @@version;"
       
       # Running the ./scripts/script.sql file which is checked out above, as part of the source code
-      # "sqlserver" is the name that we chose in the docker run step
       - run: docker exec "sqlserver" sqlcmd -S "localhost" -U "oskol" -d "postnoor" -P "" -i "/tmp/scripts/script.sql"
