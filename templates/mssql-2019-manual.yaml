@@ -11,10 +11,10 @@ jobs:
     # One example of nessecity of this approch is when we need to bind a volume to the container
     steps:
     
-      # Checkout the source before docker run if there is a folder that will be bound to a volume since the current user needs the ownership
+      # Checkout the source before docker run if there is a folder that will be bound to the container since the folder needs to exist for the binging to work
       - uses: actions/checkout@v2
     
-      # Create any extra directories meant for volume binding before docker run since the current user needs the ownership
+      # Create any extra directories meant for volume binding before docker run since the folder needs to exist for the binging to work
       - run: mkdir ./files/
       
       # This is where we start the container
@@ -23,8 +23,8 @@ jobs:
       # ./files/ is the directory we created above
       - run: |
         docker run --name "sqlserver" -d -p "1433:1433" -e "DATABASE_USERNAME=oskol" -e "DATABASE_NAMES=postnoor,golight,lynx" \
-        -v "/home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/scripts/:/tmp/scripts/" \
-        -v "/home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/files/:/tmp/files/" \
+        --mount "type=bind,source=/home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/scripts/,target=/tmp/scripts/" \
+        --mount "type=bind,source=/home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/files/,target=/tmp/files/" \
         noorteam/mssql-docker:2019-focal
     
       # We need to wait for the last database in the list to get created, since the databases get created in the same order as provided in the list
