@@ -1,1 +1,18 @@
-
+name: Parent Workflow
+on:
+  workflow_call:
+    inputs:
+      name:
+        type: string
+        required: true
+    secrets:
+      token:
+        required: true
+jobs:
+  job:
+    runs-on: ubuntu-20.04
+    steps:
+      - run: echo "${name} has said ${token}"
+        env:
+          name: ${{ inputs.name }}
+          token: ${{ secrets.token }}
