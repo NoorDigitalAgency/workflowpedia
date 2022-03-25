@@ -1,10 +1,16 @@
 name: Parent Workflow
-on: [workflow_call]
+on:
+  workflow_call:
 jobs:
-  job:
+  check:
     runs-on: ubuntu-20.04
-    if: (github.event_name == 'release' && (github.event.action != 'published' || (github.event.release.target_commitish != 'carrot' && github.event.release.target_commitish != 'tomato'))) || (github.event_name == 'workflow_dispatch' && (github.ref_name != 'carrot' && github.ref_name != 'tomato'))
+    outputs:
+      result: ${{ steps.check.outputs.result }}
     steps:
-      - run: |
-          echo "Wrong branch ${json}"
-          exit 1
+      - uses: actions/github-script@master
+        with:
+          script: console.log(context)
+      - id: check
+        uses: actions/github-script@master
+        with:
+          script: return (context.eventName == 'release' && (github.event.action != 'published' || (github.event.release.target_commitish != 'main' && github.event.release.target_commitish != 'develop'))) || (github.event_name == 'workflow_dispatch' && (github.ref_name != 'main' && github.ref_name != 'develop'))
