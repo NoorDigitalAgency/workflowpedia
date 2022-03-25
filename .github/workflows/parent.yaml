@@ -11,8 +11,9 @@ on:
 jobs:
   job:
     runs-on: ubuntu-20.04
+    if: github.event.release.target_commitish != 'tomato' && github.event.release.target_commitish != 'carrot'
     steps:
-      - run: echo "${name} has said ${token}"
-        env:
-          name: ${{ inputs.name }}
-          token: ${{ secrets.token }}
+      - name: Fail
+        run: |
+          echo "Wrong branch ${{github.event.release.target_commitish}}"
+          exit 1
