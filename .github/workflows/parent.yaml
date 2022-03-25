@@ -11,9 +11,9 @@ on:
 jobs:
   job:
     runs-on: ubuntu-20.04
-    if: github.event.release.target_commitish != 'tomato' && github.event.release.target_commitish != 'carrot'
+    #if: github.event.release.target_commitish != 'tomato' && github.event.release.target_commitish != 'carrot'
     steps:
       - name: Fail
         run: |
-          echo "Wrong branch ${{github.event.release.target_commitish}}"
+          echo "Wrong branch ${{github.event}}"
           exit 1
