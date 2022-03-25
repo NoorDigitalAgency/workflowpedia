@@ -16,4 +16,4 @@ jobs:
       - name: Fail
         run: |
           echo "Wrong branch ${{github.event}}"
-          exit 1
+          # exit 1
