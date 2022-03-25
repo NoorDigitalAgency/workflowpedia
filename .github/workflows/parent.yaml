@@ -13,4 +13,4 @@ jobs:
       - id: check
         uses: actions/github-script@master
         with:
-          script: return (context.eventName == 'release' && (github.event.action != 'published' || (github.event.release.target_commitish != 'main' && github.event.release.target_commitish != 'develop'))) || (github.event_name == 'workflow_dispatch' && (github.ref_name != 'main' && github.ref_name != 'develop'))
+          script: return (context.eventName === 'release' && (context.payload.action !== 'published' || (context.payload.release.target_commitish !== 'main' && context.payload.release.target_commitish !== 'develop'))) || (context.eventName === 'workflow_dispatch' && (context.ref !== 'refs/heads/main' && context.ref !== 'refs/heads/develop'))
