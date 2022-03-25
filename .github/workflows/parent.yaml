@@ -15,5 +15,7 @@ jobs:
     steps:
       - name: Fail
         run: |
-          echo "Wrong branch ${{github.event}}"
+          echo "Wrong branch ${json}"
           # exit 1
+        env:
+          json: ${{toJSON(github)}}
