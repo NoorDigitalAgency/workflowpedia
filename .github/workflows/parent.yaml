@@ -4,21 +4,13 @@ on:
     outputs:
       result:
         value: ${{ jobs.check.outputs.result }}
-      jsresult:
-        value: ${{ jobs.check.outputs.jsresult }}
 jobs:
   check:
     runs-on: ubuntu-20.04
     outputs:
-      result: ${{ steps.output.outputs.result }}
-      jsresult: ${{ steps.check.outputs.result }}
+      result: ${{ steps.check.outputs.result }}
     steps:
-      - uses: actions/github-script@master
-        with:
-          script: console.log(context)
       - id: check
         uses: actions/github-script@master
         with:
           script: return (context.eventName === 'release' && context.payload.action === 'published' && (context.payload.release.target_commitish === 'main' || context.payload.release.target_commitish === 'develop')) || (context.eventName === 'workflow_dispatch' && (context.ref === 'refs/heads/main' || context.ref === 'refs/heads/develop'))
-      - id: output
-        run: echo "::set-output name=result::${{ steps.check.outputs.result }}"
