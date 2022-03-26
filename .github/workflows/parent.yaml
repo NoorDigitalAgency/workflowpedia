@@ -1,11 +1,17 @@
 name: Parent Workflow
 on:
   workflow_call:
+    outputs:
+      result:
+        value: ${{ jobs.check.outputs.result }}
+      jsresult:
+        value: ${{ jobs.check.outputs.jsresult }}
 jobs:
   check:
     runs-on: ubuntu-20.04
     outputs:
       result: ${{ steps.output.outputs.result }}
+      jsresult: ${{ steps.check.outputs.result }}
     steps:
       - uses: actions/github-script@master
         with:
