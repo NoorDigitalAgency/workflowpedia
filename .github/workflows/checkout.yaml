@@ -28,6 +28,7 @@ jobs:
           script: |
               const stage = '${{ inputs.stage }}'.toLowerCase().trim();
               const branch = stage === 'alpha' ? 'develop' : stage === 'beta' ? 'release' : 'main';
-              const detached = inputs.commit.trim() !== '';
+              const attached = inputs.commit.trim() !== '';
               await exec.exec('git', ['fetch', '--all']);
-              await exec.getExecOutput('git', ['branch', '-r', '--contains', '${{ inputs.commit }}']);
+              const correctBranch = !detached || (await exec.getExecOutput('git', ['branch', '-r', '--contains', '${{ github.event.inputs.commit }}']))
+                        .stdout.split('\n').filter(line => line.trim() !== '').map(line => line.trim().split('/').pop()).includes(branch);
