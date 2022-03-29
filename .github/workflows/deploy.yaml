@@ -10,7 +10,7 @@ on:
         description: Deployment Version
         type: string
         required: true
-      resourseType:
+      resourceType:
         description: Kubernetes Resource Type
         type: string
         required: true
@@ -42,7 +42,7 @@ jobs:
             const label = context.payload.inputs.stage !== 'production' ? `-${ context.payload.inputs.stage }` : '';
             return {
               tags: `noorteam/${ name }:v${ context.payload.inputs.version },noorteam/${ name }:latest${ label }`,
-              resource: `${ context.payload.inputs.resourseType }/${ name }${ label }`
+              resource: `${ context.payload.inputs.resourceType }/${ name }${ label }`
             };
       - uses: docker/login-action@v1
         with:
