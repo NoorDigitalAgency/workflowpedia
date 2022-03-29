@@ -18,7 +18,7 @@ on:
 jobs:
   check:
     runs-on: ubuntu-20.04
-    name: Check and Checkout
+    name: Checkout
     outputs:
       succeeded: ${{ steps.result.outputs.result }}
     steps:
