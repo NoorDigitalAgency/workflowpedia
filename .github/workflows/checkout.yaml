@@ -22,4 +22,10 @@ jobs:
     outputs:
       succeeded: ${{ steps.result.outputs.result }}
     steps:
-      - run: echo hi
+      - uses: actions/github-script@v6
+        name: Analyzing
+        with:
+          script: |
+              const stage = '${{ inputs.stage }}'.toLowerCase().trim();
+              const branch = stage === 'alpha' ? 'develop' : stage === 'beta' ? 'release' : 'main';
+              const detached = 
