@@ -11,18 +11,13 @@ on:
         type: string
         required: false
         default: ''
-    outputs:
-      succeeded:
-        description: '"true" if succeeded, "false" if failed'
-        value: ${{ jobs.check.outputs.succeeded }}
 jobs:
   check:
     runs-on: ubuntu-20.04
     name: Checkout
-    outputs:
-      succeeded: ${{ steps.result.outputs.result }}
     steps:
       - uses: actions/checkout@v2
+        name: Branch Checkout
       - uses: actions/github-script@v6
         id: analyzing
         name: Analyzing
@@ -39,11 +34,9 @@ jobs:
               return { stage, branch, detached, correctBranch, commit };
       - if: (fromJSON(steps.analyzing.outputs.result).detached && fromJSON(steps.analyzing.outputs.result).correctBranch)
         uses: actions/checkout@v2
+        name: Commit Checkout
         with:
           ref: ${{ fromJSON(steps.analyzing.outputs.result).commit }}
-      - run: echo "::set-output name=result::${{ fromJSON(steps.analyzing.outputs.result).correctBranch }}"
-        id: result
-        name: Result
       - if: fromJSON(steps.analyzing.outputs.result).correctBranch != true
         name: Fail
         run: |
