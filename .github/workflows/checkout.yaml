@@ -22,14 +22,22 @@ jobs:
     outputs:
       succeeded: ${{ steps.result.outputs.result }}
     steps:
+      - uses: actions/checkout@v2
       - uses: actions/github-script@v6
+        id: analyzing
         name: Analyzing
         with:
           script: |
               const stage = '${{ inputs.stage }}'.toLowerCase().trim();
               const branch = stage === 'alpha' ? 'develop' : stage === 'beta' ? 'release' : 'main';
               const detached = inputs.commit.trim() !== '' && inputs.commit.trim() !== branch;
+              const commit = inputs.commit.trim();
               await exec.exec('git', ['fetch', '--all']);
               const correctBranch = !detached || (await exec.getExecOutput('git', ['branch', '-r', '--contains', '${{ inputs.commit }}']))
                                                  .stdout.split('\n').filter(line => line.trim() !== '').map(line => line.trim().split('/').pop())
                                                  .includes(branch);
+              return { stage, branch, detached, correctBranch };
+      - if: (fromJSON(steps.analyzing.outputs).detached && fromJSON(steps.analyzing.outputs).correctBranch)
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ fromJSON(steps.analyzing.outputs).commit }}
