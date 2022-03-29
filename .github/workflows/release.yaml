@@ -20,9 +20,8 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const name = context.payload.repository.name;
-            const label = context.payload.inputs.stage !== 'production' ? `-${ context.payload.inputs.stage }` : '';
-            return {
-              tags: `noorteam/${ name }:v${ context.payload.inputs.version },noorteam/${ name }:latest${ label }`,
-              resource: `${ context.payload.inputs.resourceType }/${ name }${ label }`
-            };
+              // [{"tag_name": "v0.99.0", "target_commitish": "main"}]
+              console.log(JSON.stringify((await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+              })).data))
