@@ -1,1 +1,25 @@
-
+name: Check and Checkout
+on:
+  workflow_call:
+    inputs:
+      stage:
+        description: Targeted Stage
+        type: string
+        required: true
+      commit:
+        description: Commit ID to check out
+        type: string
+        required: false
+        default: ''
+    outputs:
+      succeeded:
+        description: '"true" if succeeded, "false" if failed'
+        value: ${{ jobs.check.outputs.result }}
+jobs:
+  check:
+    runs-on: ubuntu-20.04
+    name: Check and Checkout
+    outputs:
+      succeeded: ${{ steps.result.outputs.result }}
+    steps:
+      - run: echo hi
