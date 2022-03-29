@@ -6,6 +6,10 @@ on:
         description: Stage
         type: string
         required: true
+      kubectlVersion:
+        description: Kubectl Version
+        type: string
+        default: v1.21.11
     secrets:
       dockerHubUsername:
         description: Docker Hub Username
@@ -13,6 +17,8 @@ on:
       dockerHubPassword:
         description: Docker Hub Password
         required: true
+      kubeConfig:
+        description: Base64 Encoded Kube Config File
 jobs:
   deploy:
     runs-on: ubuntu-20.04
