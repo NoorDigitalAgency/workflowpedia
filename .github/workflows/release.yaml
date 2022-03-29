@@ -1,0 +1,28 @@
+name: Release
+on:
+  workflow_call:
+    inputs:
+      stage:
+        description: Stage
+        type: string
+        required: true
+      commit:
+        description: Commit Id
+        type: string
+        default: ''
+jobs:
+  release:
+    runs-on: ubuntu-20.04
+    name: Release
+    steps:
+      - id: analyzing
+        name: Analyzing
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const name = context.payload.repository.name;
+            const label = context.payload.inputs.stage !== 'production' ? `-${ context.payload.inputs.stage }` : '';
+            return {
+              tags: `noorteam/${ name }:v${ context.payload.inputs.version },noorteam/${ name }:latest${ label }`,
+              resource: `${ context.payload.inputs.resourceType }/${ name }${ label }`
+            };
