@@ -3,13 +3,12 @@ on:
   workflow_call:
     inputs:
       stage:
-        description: Targeted Stage
+        description: Stage
         type: string
         required: true
       commit:
-        description: Commit ID to check out
+        description: Commit ID
         type: string
-        required: false
         default: ''
 jobs:
   check:
