@@ -6,6 +6,14 @@ on:
         description: Stage
         type: string
         required: true
+      version:
+        description: Deployment Version
+        type: string
+        required: true
+      resourseType:
+        description: Kubernetes Resource Type
+        type: string
+        required: true
       kubectlVersion:
         description: Kubectl Version
         type: string
@@ -19,6 +27,7 @@ on:
         required: true
       kubeConfig:
         description: Base64 Encoded Kube Config File
+        required: true
 jobs:
   deploy:
     runs-on: ubuntu-20.04
