@@ -46,7 +46,7 @@ jobs:
         name: Result
         with:
           script: |
-              const { correctBranch, commit } = JSON.parse('${{ steps.analyzing.outputs.result }}');
+              const { correctBranch, branch, commit } = JSON.parse('${{ steps.analyzing.outputs.result }}');
               if (!correctBranch) {
                 console.error(`The commit '${commit}' doesn't exist on branch '${branch}'.`);
               }
