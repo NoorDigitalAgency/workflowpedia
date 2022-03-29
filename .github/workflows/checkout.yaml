@@ -18,6 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         name: Branch Checkout
+        with:
+          submodules: 'recursive'
       - uses: actions/github-script@v6
         id: analyzing
         name: Analyzing
@@ -37,6 +39,7 @@ jobs:
         name: Commit Checkout
         with:
           ref: ${{ fromJSON(steps.analyzing.outputs.result).commit }}
+          submodules: 'recursive'
       - if: fromJSON(steps.analyzing.outputs.result).correctBranch != true
         name: Fail
         run: |
