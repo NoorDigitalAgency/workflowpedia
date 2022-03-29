@@ -41,15 +41,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ fromJSON(steps.analyzing.outputs.result).commit }}
-      - uses: actions/github-script@v6
+      - run: echo "::set-output name=result::${{ fromJSON(steps.analyzing.outputs.result).correctBranch }}"
         id: result
         name: Result
-        with:
-          script: |
-              const { correctBranch, branch, commit } = JSON.parse('${{ steps.analyzing.outputs.result }}');
-              if (!correctBranch) {
-                console.log(`ERROR: The commit '${commit}' doesn't exist on branch '${branch}'.`);
-                await exec.exec('sh', ['-c', '"exit 1"']);
-              }
-              return correctBranch;
-        
+      - if: (fromJSON(steps.analyzing.outputs.result).correctBranch) !== 'true'
+        name: Fail
+        run: |
+            echo "ERROR: The commit '${{ fromJSON(steps.analyzing.outputs.result).commit }}' doesn't exist on branch '${{ fromJSON(steps.analyzing.outputs.result).branch }}'."
+            exit 1
