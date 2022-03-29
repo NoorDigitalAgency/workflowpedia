@@ -31,31 +31,32 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-20.04
-    name: Checkout
+    name: Deploy
     steps:
-      - id: env
-        uses: actions/github-script@v3
+      - id: analyzing
+        name: Analyzing
+        uses: actions/github-script@v6
         with:
           script: |
+            const name = context.payload.repository.name;
+            const label = context.payload.inputs.stage !== 'production' ? `-${ context.payload.inputs.stage }` : '';
             return {
-              name: context.payload.repository.name,
-              version: context.payload.release.tag_name.startsWith('v') ? context.payload.release.tag_name.split('v')[1] : context.payload.release.tag_name,
-              label: context.payload.release.target_commitish === 'develop' ? '-alpha' : context.payload.release.target_commitish === 'release' ? '-beta' : '',
-              environment: context.payload.release.target_commitish === 'main' ? 'production' : context.payload.release.target_commitish
+              tags: `noorteam/${ name }:v${ context.payload.inputs.version },noorteam/${ name }:latest${ label }`,
+              resource: `${ context.payload.inputs.resourseType }/${ name }${ label }`
             };
       - uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.dockerHubUsername }}
+          password: ${{ secrets.dockerHubPassword }}
       - uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: noorteam/${{ fromJson(steps.env.outputs.result).name }}:v${{ fromJson(steps.env.outputs.result).version }},noorteam/${{ fromJson(steps.env.outputs.result).name }}:latest${{ fromJson(steps.env.outputs.result).label }}
-          build-args: E20R_ENV=${{fromJson(steps.env.outputs.result).environment}}
+          tags: ${{ fromJson(steps.analyzing.outputs.result).tags }}
+          build-args: E20R_ENV=${{ inputs.stage }}
       - run: |
           mkdir -p ~/.kube
-          echo ${{ secrets.LJN1_KUBE_CONFIG }} | base64 --decode > ~/.kube/config
-          curl -LO https://dl.k8s.io/release/${{ secrets.KUBECTL_VERSION }}/bin/linux/amd64/kubectl
+          echo ${{ secrets.kubeConfig }} | base64 --decode > ~/.kube/config
+          curl -LO https://dl.k8s.io/release/${{ inputs.kubectlVersion }}/bin/linux/amd64/kubectl
           chmod 755 ./kubectl
-          ./kubectl rollout restart deployment/${{ fromJson(steps.env.outputs.result).name }}${{ fromJson(steps.env.outputs.result).label }} --namespace=noor
+          ./kubectl rollout restart ${{ fromJson(steps.analyzing.outputs.result).resource }} --namespace=noor
