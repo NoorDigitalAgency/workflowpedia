@@ -7,7 +7,7 @@ on:
         type: string
         required: true
       commit:
-        description: Commit ID
+        description: Commit Id
         type: string
         default: ''
 jobs:
