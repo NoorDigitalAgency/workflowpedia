@@ -44,7 +44,7 @@ jobs:
       - run: echo "::set-output name=result::${{ fromJSON(steps.analyzing.outputs.result).correctBranch }}"
         id: result
         name: Result
-      - if: (fromJSON(steps.analyzing.outputs.result).correctBranch) !== 'true'
+      - if: (fromJSON(steps.analyzing.outputs.result).correctBranch) != 'true'
         name: Fail
         run: |
             echo "ERROR: The commit '${{ fromJSON(steps.analyzing.outputs.result).commit }}' doesn't exist on branch '${{ fromJSON(steps.analyzing.outputs.result).branch }}'."
