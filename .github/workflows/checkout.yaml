@@ -49,7 +49,7 @@ jobs:
               const { correctBranch, branch, commit } = JSON.parse('${{ steps.analyzing.outputs.result }}');
               if (!correctBranch) {
                 console.log(`ERROR: The commit '${commit}' doesn't exist on branch '${branch}'.`);
-                await exec.exec('exit', ['1']);
+                await exec.exec('sh', ['-c', '"exit 1"']);
               }
               return correctBranch;
         
