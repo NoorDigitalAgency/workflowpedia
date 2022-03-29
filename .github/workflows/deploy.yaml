@@ -61,5 +61,5 @@ jobs:
           mkdir -p ~/.kube
           echo ${{ secrets.kubeConfig }} | base64 --decode > ~/.kube/config
           curl -LO https://dl.k8s.io/release/${{ inputs.kubectlVersion }}/bin/linux/amd64/kubectl
-          chmod 755 ./kubectl
+          chmod +x ./kubectl
           ./kubectl rollout restart ${{ fromJson(steps.analyzing.outputs.result).resource }} --namespace=noor
