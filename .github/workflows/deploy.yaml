@@ -3,14 +3,16 @@ on:
   workflow_call:
     inputs:
       stage:
-        description: Targeted Stage
+        description: Stage
         type: string
         required: true
-      commit:
-        description: Commit ID to check out
-        type: string
-        required: false
-        default: ''
+    secrets:
+      dockerHubUsername:
+        description: Docker Hub Username
+        required: true
+      dockerHubPassword:
+        description: Docker Hub Password
+        required: true
 jobs:
   deploy:
     runs-on: ubuntu-20.04
