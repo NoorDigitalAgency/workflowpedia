@@ -24,6 +24,13 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
+            const tags = [];
+            let page = 1;
+            let count;
+            do
+            {
+              
+            } while (count > 0);
             // [{"name":"v0.1"}]
             console.log(JSON.stringify((await github.rest.repos.listTags({
               owner: context.repo.owner,
