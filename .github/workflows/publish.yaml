@@ -120,7 +120,7 @@ jobs:
             const previousVersion = '${{ needs.startup.outputs.previousVersion }}';
             const branch = stage === 'alpha' ? 'develop' : stage === 'beta' ? 'release' : 'main';
             const prerelease = branch !== 'main';
-            const releaseNotes = (await github.rest.repos.generateReleaseNotes({ owner: context.repo.owner, repo: context.repo.repo, tag_name: version, target_commitish: branch, previous_tag_name: previousRelease })).data;
+            const releaseNotes = (await github.rest.repos.generateReleaseNotes({ owner: context.repo.owner, repo: context.repo.repo, tag_name: version, target_commitish: branch, previous_tag_name: previousVersion })).data;
             await github.rest.repos.createRelease({ owner: context.repo.owner, repo: context.repo.repo, tag_name: version, target_commitish: branch, prerelease, generate_release_notes: false, ...releaseNotes });
     
     
