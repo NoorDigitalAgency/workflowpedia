@@ -24,15 +24,19 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const tags = [];
+            const releases = [];
             let page = 1;
             let count;
             do
             {
-              
+              const data = (await github.rest.repos.listReleases({ owner: context.repo.owner, repo: context.repo.repo, page, per_page: 100 })).data;
+              count = data.length;
+              releases = releases.concat(data.map(release => ({tag: release.tag_name, branch: release.target_commitish, creation: new Date(Date.parse(release.created_at))})));
+              page++;
             } while (count > 0);
+            console.log(JSON.stringify(releases));
             // [{"name":"v0.1"}]
-            console.log(JSON.stringify((await github.rest.repos.listTags({
+            console.log(JSON.stringify((await github.rest.repos.listReleases({
               owner: context.repo.owner,
               repo: context.repo.repo
             })).data))
