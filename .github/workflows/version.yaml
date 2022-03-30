@@ -10,16 +10,20 @@ on:
       version:
         description: Generated Version
         value: ${{ jobs.versioning.outputs.version }}
+      previousVersion:
+        description: Previous Released Version
+        value: ${{ jobs.versioning.outputs.previousVersion }}
 jobs:
   versioning:
     runs-on: ubuntu-20.04
     name: Versioning
     outputs:
-      version: ${{ steps.generating.outputs.result }}
+      version: ${{ fromJSON(steps.generating.outputs.result).version }}
+      previousVersion: ${{ fromJSON(steps.generating.outputs.result).previousVersion }}
     steps:
       - uses: actions/github-script@v6
         id: generating
         name: Generating
         with:
           script: |
-              return `v2030.1-${context.payload.inputs.stage}`;
+              return { version: `v2030.1-${context.payload.inputs.stage}`, previousVersion: '' };
