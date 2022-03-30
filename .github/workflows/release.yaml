@@ -24,6 +24,11 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
+            // [{"name":"v0.1"}]
+            console.log(JSON.stringify((await github.rest.repos.listTags({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            })).data))
             // {"name":"v0.9.4","body":"**Full Changelog**: https://github.com/NoorDigitalAgency/lightning-test/compare/v0.9.2...v0.9.4"}
             console.log(JSON.stringify((await github.rest.repos.generateReleaseNotes({
               owner: context.repo.owner,
