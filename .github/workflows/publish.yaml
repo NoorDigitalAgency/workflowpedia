@@ -32,8 +32,11 @@ jobs:
   startup:
     runs-on: ubuntu-20.04
     name: Startup
+    outputs:
+      arguments: ${{ steps.startup.outputs.result }}
     steps:
-      - uses: actions/github-script@v6
+      - id: startup
+        uses: actions/github-script@v6
         name: Startup
         with:
           script: |
@@ -52,4 +55,8 @@ jobs:
               const commit = context.payload.inputs.commit.toLowerCase().trim();
               const kubectl = context.payload.inputs.kubectlVersion.toLowerCase().trim();
               return { stage, resource, commit, kubectl };
-              
+  versioning:
+    needs: [startup]
+    uses: NoorDigitalAgency/workflowpedia/.github/workflows/version.yaml@main
+    with:
+      stage: ${{ fromJSON(needs.startup.outputs.arguments).stage }}
