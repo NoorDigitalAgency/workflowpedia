@@ -37,6 +37,8 @@ jobs:
       stage: ${{ fromJSON(steps.startup.outputs.result).stage }}
       resource: ${{ fromJSON(steps.startup.outputs.result).resource }}
       kubectl: ${{ fromJSON(steps.startup.outputs.result).kubectl }}
+      version: ${{ fromJSON(steps.version.outputs.result).version }}
+      previousVersion: ${{ fromJSON(steps.version.outputs.result).previousVersion }}
     steps:
       - id: startup
         uses: actions/github-script@v6
@@ -57,25 +59,17 @@ jobs:
               }
               const kubectl = '${{ inputs.kubectlVersion }}'.toLowerCase().trim();
               return { stage, resource, kubectl };
-  
-  version:
-    needs: [startup]
-    runs-on: ubuntu-20.04
-    name: Version
-    outputs:
-      version: ${{ fromJSON(steps.generating.outputs.result).version }}
-      previousVersion: ${{ fromJSON(steps.generating.outputs.result).previousVersion }}
-    steps:
+      
       - uses: actions/github-script@v6
-        id: generating
-        name: Generating
+        id: version
+        name: Version
         with:
           script: |
               return { version: 'v2030.1-${{ needs.startup.outputs.stage }}', previousVersion: '' };
       
   deploy:
     if: inputs.deploy
-    needs: [startup, version]
+    needs: [startup]
     runs-on: ubuntu-20.04
     name: Deploy
     steps:
@@ -84,7 +78,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const version = '${{ needs.version.outputs.version }}';
+            const version = '${{ needs.startup.outputs.version }}';
             const resource = '${{ needs.startup.outputs.resource }}';
             const name = context.payload.repository.name;
             const label = stage !== 'production' ? `-${ stage }` : '';
@@ -113,7 +107,7 @@ jobs:
           ./kubectl rollout restart ${{ fromJson(steps.analyzing.outputs.result).resource }} --namespace=noor
 
   release:
-    needs: [startup, version]
+    needs: [startup]
     runs-on: ubuntu-20.04
     name: Release
     steps:
@@ -122,8 +116,8 @@ jobs:
         with:
           script: |
             const stage = '${{ needs.startup.outputs.stage }}';
-            const version = '${{ needs.version.outputs.version }}';
-            const previousVersion = '${{ needs.version.outputs.previousVersion }}';
+            const version = '${{ needs.startup.outputs.version }}';
+            const previousVersion = '${{ needs.startup.outputs.previousVersion }}';
             const branch = stage === 'alpha' ? 'develop' : stage === 'beta' ? 'release' : 'main';
             const prerelease = branch !== 'main';
             const releaseNotes = (await github.rest.repos.generateReleaseNotes({ owner: context.repo.owner, repo: context.repo.repo, tag_name: version, target_commitish: branch, previous_tag_name: previousRelease })).data;
