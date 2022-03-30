@@ -41,6 +41,6 @@ jobs:
           submodules: 'recursive'
       - if: fromJSON(steps.analyzing.outputs.result).correctBranch != true
         name: Fail
-        run: |
-            echo "ERROR: The commit '${{ fromJSON(steps.analyzing.outputs.result).commit }}' doesn't exist on branch '${{ fromJSON(steps.analyzing.outputs.result).branch }}'."
-            exit 1
+        uses: actions/github-script@v6
+        with:
+          script: core.setFailed("The commit '${{ fromJSON(steps.analyzing.outputs.result).commit }}' doesn't exist on branch '${{ fromJSON(steps.analyzing.outputs.result).branch }}'.");
