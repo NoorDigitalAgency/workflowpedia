@@ -6,10 +6,6 @@ on:
         description: Stage
         type: string
         required: true
-      commit:
-        description: Commit Id
-        type: string
-        default: ''
       resourceType:
         description: Kubernetes Resource Type
         type: string
@@ -52,11 +48,56 @@ jobs:
                 core.setFailed(`Invalid resource type '${resource}'.`);
                 return;
               }
-              const commit = context.payload.inputs.commit.toLowerCase().trim();
               const kubectl = context.payload.inputs.kubectlVersion.toLowerCase().trim();
-              return { stage, resource, commit, kubectl };
+              return { stage, resource, kubectl };
   version:
     needs: [startup]
     uses: NoorDigitalAgency/workflowpedia/.github/workflows/version.yaml@main
     with:
       stage: ${{ fromJSON(needs.startup.outputs.arguments).stage }}
+  deploy:
+    needs: [startup, version]
+    uses: NoorDigitalAgency/workflowpedia/.github/workflows/deploy.yaml@main
+    with:
+      stage: ${{ fromJSON(needs.startup.outputs.arguments).stage }}
+      version: ${{ needs.version.outputs.version }}
+      resourceType: ${{ fromJSON(needs.startup.outputs.arguments).resource }}
+      kubectlVersion: ${{ fromJSON(needs.startup.outputs.arguments).kubectl }}
+    secrets:
+      dockerHubUsername: ${{ secrets.dockerHubUsername }}
+      dockerHubPassword: ${{ secrets.dockerHubPassword }}
+      kubeConfig: ${{ secrets.kubeConfig }}
+  release:
+    needs: [startup, version]
+    uses: NoorDigitalAgency/workflowpedia/.github/workflows/release.yaml@main
+    with:
+      stage: ${{ fromJSON(needs.startup.outputs.arguments).stage }}
+      version: ${{ needs.version.outputs.version }}
+      previousVersion: ${{ needs.version.outputs.previousVersion }}
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
