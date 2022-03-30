@@ -84,7 +84,7 @@ jobs:
             const name = context.payload.repository.name;
             const label = stage !== 'production' ? `-${ stage }` : '';
             return {
-              tags: `noorteam/${ name }:v${ version },noorteam/${ name }:latest${ label }`,
+              tags: `noorteam/${ name }:${ version },noorteam/${ name }:latest${ label }`,
               resource: `${ resource }/${ name }${ label }`
             };
       - name: Docker Hub Login
