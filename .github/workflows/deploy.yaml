@@ -18,6 +18,10 @@ on:
         description: Kubectl Version
         type: string
         default: v1.21.11
+      dockerContext:
+        description: Docker Build Context
+        type: string
+        default: .
     secrets:
       dockerHubUsername:
         description: Docker Hub Username
@@ -52,7 +56,7 @@ jobs:
       - name: Docker Hub Push
         uses: docker/build-push-action@v2
         with:
-          context: .
+          context: ${{ inputs.dockerContext }}
           push: true
           tags: ${{ fromJson(steps.analyzing.outputs.result).tags }}
           build-args: E20R_ENV=${{ inputs.stage }}
