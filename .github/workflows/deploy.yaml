@@ -17,11 +17,11 @@ on:
       kubectlVersion:
         description: Kubectl Version
         type: string
-        default: v1.21.11
+        required: true
       dockerContext:
         description: Docker Build Context
         type: string
-        default: .
+        required: true
     secrets:
       dockerHubUsername:
         description: Docker Hub Username
