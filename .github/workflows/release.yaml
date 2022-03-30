@@ -14,6 +14,10 @@ on:
         description: Release Version
         type: string
         required: true
+      previousVersion:
+        description: Previous Release Version
+        type: string
+        required: true
 jobs:
   release:
     runs-on: ubuntu-20.04
@@ -24,6 +28,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
+            const branch = 'main' //context.payload.inputs.stage === 'alpha' ? 'develop' : context.payload.inputs.stage === 'beta' ? 'release' : 'main';
             const releases = [];
             let page = 1;
             let count;
@@ -31,15 +36,11 @@ jobs:
             {
               const data = (await github.rest.repos.listReleases({ owner: context.repo.owner, repo: context.repo.repo, page, per_page: 100 })).data;
               count = data.length;
-              releases = releases.concat(data.map(release => ({tag: release.tag_name, branch: release.target_commitish, creation: new Date(Date.parse(release.created_at))})));
+              releases.push(...data.map(release => ({tag: release.tag_name, branch: release.target_commitish, creation: new Date(Date.parse(release.created_at))})));
               page++;
             } while (count > 0);
-            console.log(JSON.stringify(releases));
-            // [{"name":"v0.1"}]
-            console.log(JSON.stringify((await github.rest.repos.listReleases({
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            })).data))
+            const previousTag = releases.filter(release => release.branch === branch).sort((a, b) => b.creation > a.creation).reverse().map(release => release.tag).pop();
+            
             // {"name":"v0.9.4","body":"**Full Changelog**: https://github.com/NoorDigitalAgency/lightning-test/compare/v0.9.2...v0.9.4"}
             console.log(JSON.stringify((await github.rest.repos.generateReleaseNotes({
               owner: context.repo.owner,
