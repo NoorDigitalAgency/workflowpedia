@@ -115,11 +115,20 @@ jobs:
 
   release:
     needs: [startup, version]
-    uses: NoorDigitalAgency/workflowpedia/.github/workflows/release.yaml@main
-    with:
-      stage: ${{ fromJSON(needs.startup.outputs.arguments).stage }}
-      version: ${{ needs.version.outputs.version }}
-      previousVersion: ${{ needs.version.outputs.previousVersion }}
+    runs-on: ubuntu-20.04
+    name: Release
+    steps:
+      - name: Create Release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const stage = '${{ fromJSON(needs.startup.outputs.arguments).stage }}';
+            const version = '${{ needs.version.outputs.version }}';
+            const previousVersion = '${{ needs.version.outputs.previousVersion }}';
+            const branch = stage === 'alpha' ? 'develop' : stage === 'beta' ? 'release' : 'main';
+            const prerelease = branch !== 'main';
+            const releaseNotes = (await github.rest.repos.generateReleaseNotes({ owner: context.repo.owner, repo: context.repo.repo, tag_name: version, target_commitish: branch, previous_tag_name: previousTag })).data;
+            await github.rest.repos.createRelease({ owner: context.repo.owner, repo: context.repo.repo, tag_name: version, target_commitish: branch, prerelease, generate_release_notes: false, ...releaseNotes });
     
     
     
