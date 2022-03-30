@@ -6,22 +6,20 @@ on:
         description: Stage
         type: string
         required: true
+    outputs:
+      version:
+        description: Generated Version
+        value: ${{ jobs.versioning.outputs.version }}
 jobs:
-  checkout:
+  versioning:
     runs-on: ubuntu-20.04
-    name: Checkout
+    name: Versioning
+    outputs:
+      version: ${{ steps.generating.outputs.result }}
     steps:
       - uses: actions/github-script@v6
-        id: analyzing
-        name: Analyzing
+        id: generating
+        name: Generating
         with:
           script: |
-              const stage = context.payload.inputs.stage.toLowerCase().trim();
-              const commit = context.payload.inputs.commit.trim();
-              const branch = stage === 'alpha' ? 'develop' : stage === 'beta' ? 'release' : 'main';
-              const detached = commit !== '' && commit !== branch;
-              await exec.exec('git', ['fetch', '--all']);
-              const correctBranch = !detached || (await exec.getExecOutput('git', ['branch', '-r', '--contains', commit]))
-                                                 .stdout.split('\n').filter(line => line.trim() !== '').map(line => line.trim().split('/').pop())
-                                                 .includes(branch);
-              return { stage, branch, detached, correctBranch, commit };
+              return 'v2030.1';
