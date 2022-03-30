@@ -38,14 +38,13 @@ jobs:
                                                  .stdout.split('\n').filter(line => line.trim() !== '').map(line => line.trim().split('/').pop())
                                                  .includes(branch);
               return { branch, detached, correctBranch, commit };
-      - if: (fromJSON(steps.analyzing.outputs.result).detached && fromJSON(steps.analyzing.outputs.result).correctBranch)
-        uses: actions/checkout@v2
-        name: Commit Checkout
-        with:
-          ref: ${{ fromJSON(steps.analyzing.outputs.result).commit }}
-          submodules: 'recursive'
       - if: fromJSON(steps.analyzing.outputs.result).correctBranch != true
         name: Fail
         uses: actions/github-script@v6
         with:
           script: core.setFailed("The commit '${{ fromJSON(steps.analyzing.outputs.result).commit }}' doesn't exist on branch '${{ fromJSON(steps.analyzing.outputs.result).branch }}'.");
+      - uses: actions/checkout@v2
+        name: Commit Checkout
+        with:
+          ref: ${{ fromJSON(steps.analyzing.outputs.result).commit }}
+          submodules: 'recursive'
