@@ -29,6 +29,7 @@ on:
         description: Base64 Encoded Kube Config File
         required: false
 jobs:
+  
   startup:
     runs-on: ubuntu-20.04
     name: Startup
@@ -54,24 +55,64 @@ jobs:
               }
               const kubectl = context.payload.inputs.kubectlVersion.toLowerCase().trim();
               return { stage, resource, kubectl };
+  
   version:
     needs: [startup]
-    uses: NoorDigitalAgency/workflowpedia/.github/workflows/version.yaml@main
-    with:
-      stage: ${{ fromJSON(needs.startup.outputs.arguments).stage }}
+    runs-on: ubuntu-20.04
+    name: Version
+    outputs:
+      version: ${{ fromJSON(steps.generating.outputs.result).version }}
+      previousVersion: ${{ fromJSON(steps.generating.outputs.result).previousVersion }}
+    steps:
+      - uses: actions/github-script@v6
+        id: generating
+        name: Generating
+        with:
+          script: |
+              return { version: 'v2030.1-${{ fromJSON(needs.startup.outputs.arguments).stage }}', previousVersion: '' };
+      
   deploy:
     if: inputs.deploy
     needs: [startup, version]
-    uses: NoorDigitalAgency/workflowpedia/.github/workflows/deploy.yaml@main
-    with:
-      stage: ${{ fromJSON(needs.startup.outputs.arguments).stage }}
-      version: ${{ needs.version.outputs.version }}
-      resourceType: ${{ fromJSON(needs.startup.outputs.arguments).resource }}
-      kubectlVersion: ${{ fromJSON(needs.startup.outputs.arguments).kubectl }}
-    secrets:
-      dockerHubUsername: ${{ secrets.dockerHubUsername }}
-      dockerHubPassword: ${{ secrets.dockerHubPassword }}
-      kubeConfig: ${{ secrets.kubeConfig }}
+    runs-on: ubuntu-20.04
+    name: Deploy
+    steps:
+      - id: analyzing
+        name: Analyzing
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const stage = '${{ fromJSON(needs.startup.outputs.arguments).stage }}';
+            const version = '${{ needs.version.outputs.version }}';
+            const resource = '${{ fromJSON(needs.startup.outputs.arguments).resource }}';
+            cont kubectl = '${{ fromJSON(needs.startup.outputs.arguments).kubectl }}';
+            const name = context.payload.repository.name;
+            const label = stage !== 'production' ? `-${ stage }` : '';
+            return {
+              tags: `noorteam/${ name }:v${ version },noorteam/${ name }:latest${ label }`,
+              resource: `${ resource }/${ name }${ label }`,
+              stage, kubectl
+            };
+      - name: Docker Hub Login
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.dockerHubUsername }}
+          password: ${{ secrets.dockerHubPassword }}
+      - name: Docker Hub Push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ fromJson(steps.analyzing.outputs.result).tags }}
+          build-args: E20R_ENV=${{ fromJson(steps.analyzing.outputs.result).stage }}
+      - name: Kubernetes Resource Update
+        run: |
+          mkdir -p ~/.kube
+          echo ${{ secrets.kubeConfig }} | base64 --decode > ~/.kube/config
+          curl -LO https://dl.k8s.io/release/${{ fromJson(steps.analyzing.outputs.result).kubectl }}/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+          ./kubectl rollout restart ${{ fromJson(steps.analyzing.outputs.result).resource }} --namespace=noor
+
   release:
     needs: [startup, version]
     uses: NoorDigitalAgency/workflowpedia/.github/workflows/release.yaml@main
