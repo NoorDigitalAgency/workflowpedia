@@ -24,7 +24,7 @@ jobs:
         name: Analyzing
         with:
           script: |
-              const stage = context.payload.inputs.stage.toLowerCase().trim();
+              const stage = context.payload.inputs.stage;
               const commit = context.payload.inputs.commit.trim();
               const branch = stage === 'alpha' ? 'develop' : stage === 'beta' ? 'release' : 'main';
               const detached = commit !== '' && commit !== branch;
@@ -32,7 +32,7 @@ jobs:
               const correctBranch = !detached || (await exec.getExecOutput('git', ['branch', '-r', '--contains', commit]))
                                                  .stdout.split('\n').filter(line => line.trim() !== '').map(line => line.trim().split('/').pop())
                                                  .includes(branch);
-              return { stage, branch, detached, correctBranch, commit };
+              return { branch, detached, correctBranch, commit };
       - if: (fromJSON(steps.analyzing.outputs.result).detached && fromJSON(steps.analyzing.outputs.result).correctBranch)
         uses: actions/checkout@v2
         name: Commit Checkout
