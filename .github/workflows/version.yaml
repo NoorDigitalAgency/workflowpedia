@@ -22,4 +22,4 @@ jobs:
         name: Generating
         with:
           script: |
-              return 'v2030.1';
+              return `v2030.1-${content.payload.inputs.stage}`;
