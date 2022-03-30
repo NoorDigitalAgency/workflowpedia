@@ -14,6 +14,10 @@ on:
         description: Kubectl Version
         type: string
         default: v1.21.11
+      deploy:
+        description: If should deploy
+        type: boolean
+        default: true
     secrets:
       dockerHubUsername:
         description: Docker Hub Username
@@ -56,6 +60,7 @@ jobs:
     with:
       stage: ${{ fromJSON(needs.startup.outputs.arguments).stage }}
   deploy:
+    if: inputs.deploy
     needs: [startup, version]
     uses: NoorDigitalAgency/workflowpedia/.github/workflows/deploy.yaml@main
     with:
