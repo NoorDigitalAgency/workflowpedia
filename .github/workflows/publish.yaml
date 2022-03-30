@@ -29,20 +29,27 @@ on:
         description: Base64 Encoded Kube Config File
         required: true
 jobs:
-  versioning:
+  startup:
     runs-on: ubuntu-20.04
-    name: Versioning
-    outputs:
-      version: ${{ steps.generating.outputs.result }}
+    name: Startup
     steps:
       - uses: actions/github-script@v6
-        id: generating
-        name: Generating
+        name: Startup
         with:
           script: |
-              const stage = context.payload.inputs.stage;
-              if (stage !== 'production' && stage !== 'beta' && stage !== 'alpha')
+              const stage = context.payload.inputs.stage.toLowerCase().trim();
+              if (!['production', 'beta', 'alpha'].includes(stage))
               {
                 core.setFailed(`Invalid stage name '${stage}'.`);
                 return;
               }
+              const resource = context.payload.inputs.resourceType.toLowerCase().trim();
+              if (!['deployments', 'deployment', 'deploy', 'daemonsets', 'daemonset', 'ds'].includes(resource))
+              {
+                core.setFailed(`Invalid resource type '${resource}'.`);
+                return;
+              }
+              const commit = context.payload.inputs.commit.toLowerCase().trim();
+              const kubectl = context.payload.inputs.kubectlVersion.toLowerCase().trim();
+              return { stage, resource, commit, kubectl };
+              
