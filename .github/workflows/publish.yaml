@@ -6,10 +6,28 @@ on:
         description: Stage
         type: string
         required: true
-    outputs:
-      version:
-        description: Generated Version
-        value: ${{ jobs.versioning.outputs.version }}
+      commit:
+        description: Commit Id
+        type: string
+        default: ''
+      resourceType:
+        description: Kubernetes Resource Type
+        type: string
+        required: true
+      kubectlVersion:
+        description: Kubectl Version
+        type: string
+        default: v1.21.11
+    secrets:
+      dockerHubUsername:
+        description: Docker Hub Username
+        required: true
+      dockerHubPassword:
+        description: Docker Hub Password
+        required: true
+      kubeConfig:
+        description: Base64 Encoded Kube Config File
+        required: true
 jobs:
   versioning:
     runs-on: ubuntu-20.04
@@ -22,4 +40,9 @@ jobs:
         name: Generating
         with:
           script: |
-              return `v2030.1-${context.payload.inputs.stage}`;
+              const stage = context.payload.inputs.stage;
+              if (stage !== 'production' && stage !== 'beta' && stage !== 'alpha')
+              {
+                core.setFailed(`Invalid stage name '${stage}'.`);
+                return;
+              }
