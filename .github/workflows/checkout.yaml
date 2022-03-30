@@ -43,7 +43,8 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: core.setFailed("The commit '${{ fromJSON(steps.analyzing.outputs.result).commit }}' doesn't exist on branch '${{ fromJSON(steps.analyzing.outputs.result).branch }}'.");
-      - uses: actions/checkout@v2
+      - if: fromJSON(steps.analyzing.outputs.result).detached == true
+        uses: actions/checkout@v2
         name: Commit Checkout
         with:
           ref: ${{ fromJSON(steps.analyzing.outputs.result).commit }}
