@@ -42,8 +42,7 @@ jobs:
             const label = context.payload.inputs.stage !== 'production' ? `-${ context.payload.inputs.stage }` : '';
             return {
               tags: `noorteam/${ name }:v${ context.payload.inputs.version },noorteam/${ name }:latest${ label }`,
-              resource: `${ context.payload.inputs.resourceType }/${ name }${ label }`,
-              stage: context.payload.inputs.stage.toLowerCase().trim()
+              resource: `${ context.payload.inputs.resourceType }/${ name }${ label }`
             };
       - name: Docker Hub Login
         uses: docker/login-action@v1
@@ -56,7 +55,7 @@ jobs:
           context: .
           push: true
           tags: ${{ fromJson(steps.analyzing.outputs.result).tags }}
-          build-args: E20R_ENV=${{ fromJson(steps.analyzing.outputs.result).stage }}
+          build-args: E20R_ENV=${{ inputs.stage }}
       - name: Kubernetes Resource Update
         run: |
           mkdir -p ~/.kube
