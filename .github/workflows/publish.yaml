@@ -9,7 +9,7 @@ on:
       resourceType:
         description: Kubernetes Resource Type
         type: string
-        required: true
+        default: daemonset
       kubectlVersion:
         description: Kubectl Version
         type: string
@@ -21,13 +21,13 @@ on:
     secrets:
       dockerHubUsername:
         description: Docker Hub Username
-        required: true
+        required: false
       dockerHubPassword:
         description: Docker Hub Password
-        required: true
+        required: false
       kubeConfig:
         description: Base64 Encoded Kube Config File
-        required: true
+        required: false
 jobs:
   startup:
     runs-on: ubuntu-20.04
