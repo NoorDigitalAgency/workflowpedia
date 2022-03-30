@@ -6,10 +6,6 @@ on:
         description: Stage
         type: string
         required: true
-      commit:
-        description: Commit Id
-        type: string
-        default: ''
       version:
         description: Release Version
         type: string
