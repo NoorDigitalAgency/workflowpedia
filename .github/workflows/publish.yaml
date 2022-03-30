@@ -55,7 +55,7 @@ jobs:
               const commit = context.payload.inputs.commit.toLowerCase().trim();
               const kubectl = context.payload.inputs.kubectlVersion.toLowerCase().trim();
               return { stage, resource, commit, kubectl };
-  versioning:
+  version:
     needs: [startup]
     uses: NoorDigitalAgency/workflowpedia/.github/workflows/version.yaml@main
     with:
