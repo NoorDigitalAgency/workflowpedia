@@ -65,7 +65,7 @@ jobs:
         with:
           script: |
               const stage = '${{ fromJSON(steps.startup.outputs.result).stage }}';
-              return { version: 'v2030.1-${{ steps.startup.outputs.stage }}', previousVersion: '' };
+              return { version: `v2030.1-${ stage }`, previousVersion: '' };
       
   deploy:
     if: inputs.deploy
