@@ -25,6 +25,11 @@ jobs:
         with:
           script: |
               const stage = context.payload.inputs.stage;
+              if (stage !== 'production' && stage !== 'beta' && stage !== 'alpha')
+              {
+                core.setFailed(`Invalid stage name '${stage}'.`);
+                return;
+              }
               const commit = context.payload.inputs.commit.trim();
               const branch = stage === 'alpha' ? 'develop' : stage === 'beta' ? 'release' : 'main';
               const detached = commit !== '' && commit !== branch;
