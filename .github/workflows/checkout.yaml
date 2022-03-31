@@ -37,5 +37,5 @@ jobs:
       - uses: actions/checkout@v2
         name: Commit Checkout
         with:
-          ref: ${{ steps.startup.outputs.previousVersion }}
+          ref: ${{ steps.startup.outputs.reference }}
           submodules: 'recursive'
