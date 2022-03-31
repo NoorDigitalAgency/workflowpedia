@@ -6,10 +6,14 @@ on:
         description: Stage
         type: string
         required: true
-      commit:
-        description: Commit Id
+      reference:
+        description: Reference
         type: string
         default: ''
+      hotfix:
+        description: Is hotfix
+        type: boolean
+        default: false
 jobs:
   checkout:
     runs-on: ubuntu-20.04
@@ -19,33 +23,18 @@ jobs:
         name: Branch Checkout
         with:
           submodules: 'recursive'
-      - uses: actions/github-script@v6
-        id: analyzing
-        name: Analyzing
+      - uses: NoorDigital/release-startup@main
+        id: startup
+        name: Startup
         with:
-          script: |
-              const stage = '${{ inputs.stage }}';
-              if (stage !== 'production' && stage !== 'beta' && stage !== 'alpha')
-              {
-                core.setFailed(`Invalid stage name '${stage}'.`);
-                return;
-              }
-              const commit = '${{ inputs.commit }}'.trim();
-              const branch = stage === 'alpha' ? 'develop' : stage === 'beta' ? 'release' : 'main';
-              const detached = commit !== '' && commit !== branch;
-              await exec.exec('git', ['fetch', '--all']);
-              const correctBranch = !detached || (await exec.getExecOutput('git', ['branch', '-r', '--contains', commit]))
-                                                 .stdout.split('\n').filter(line => line.trim() !== '').map(line => line.trim().split('/').pop())
-                                                 .includes(branch);
-              return { branch, detached, correctBranch, commit };
-      - if: fromJSON(steps.analyzing.outputs.result).correctBranch != true
-        name: Fail
-        uses: actions/github-script@v6
-        with:
-          script: core.setFailed("The commit '${{ fromJSON(steps.analyzing.outputs.result).commit }}' doesn't exist on branch '${{ fromJSON(steps.analyzing.outputs.result).branch }}'.");
-      - if: fromJSON(steps.analyzing.outputs.result).detached == true
-        uses: actions/checkout@v2
+          stage: ${{ inputs.stage }}
+          reference: ${{ inputs.reference }}
+          hotfix: ${{ inputs.hotfix }}
+      - run: |
+          echo '${{ steps.startup.outputs.version }}'
+          echo '${{ steps.startup.outputs.previousVersion }}'
+      - uses: actions/checkout@v2
         name: Commit Checkout
         with:
-          ref: ${{ fromJSON(steps.analyzing.outputs.result).commit }}
+          ref: ${{ steps.startup.outputs.previousVersion }}
           submodules: 'recursive'
