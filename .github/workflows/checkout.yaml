@@ -23,7 +23,7 @@ jobs:
         name: Branch Checkout
         with:
           submodules: 'recursive'
-      - uses: NoorDigital/release-startup@main
+      - uses: NoorDigitalAgency/release-startup@main
         id: startup
         name: Startup
         with:
