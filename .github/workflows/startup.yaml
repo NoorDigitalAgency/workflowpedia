@@ -15,10 +15,10 @@ on:
         type: boolean
         default: false
     outputs:
-      release-version:
+      release_version:
         description: The version information generated to be used for the release
         value: ${{ jobs.startup.outputs.version }}
-      previous-release-version:
+      previous_release_version:
         description: The previous version information used for generating change logs
         value: ${{ jobs.startup.outputs.previous-version }}
       reference:
