@@ -1,4 +1,4 @@
-name: Checkout
+name: Startup
 on:
   workflow_call:
     inputs:
@@ -30,7 +30,7 @@ jobs:
           stage: ${{ inputs.stage }}
           reference: ${{ inputs.reference }}
           hotfix: ${{ inputs.hotfix }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ github.token }}
       - run: |
           echo '${{ steps.startup.outputs.version }}'
           echo '${{ steps.startup.outputs.previousVersion }}'
