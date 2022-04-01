@@ -33,7 +33,7 @@ jobs:
           echo '${{ steps.startup.outputs.version }}'
           echo '${{ steps.startup.outputs.previous_version }}'
       - uses: actions/checkout@v2
-        name: Commit Checkout
+        name: Release Checkout
         with:
           ref: ${{ steps.startup.outputs.reference }}
           submodules: 'recursive'
