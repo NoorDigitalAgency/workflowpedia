@@ -47,3 +47,6 @@ jobs:
         with:
           ref: ${{ steps.startup.outputs.reference }}
           submodules: 'recursive'
+      - run: |
+          ls -la
+          cat README.md
