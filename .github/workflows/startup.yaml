@@ -20,7 +20,7 @@ on:
         value: ${{ jobs.startup.outputs.version }}
       previous_release_version:
         description: The previous version information used for generating change logs
-        value: ${{ jobs.startup.outputs.previous-version }}
+        value: ${{ jobs.startup.outputs.previous_version }}
       reference:
         description: Git reference to be checked out
         value: ${{ jobs.startup.outputs.reference }}
@@ -30,7 +30,7 @@ jobs:
     name: Startup
     outputs:
       version: ${{ steps.startup.outputs.version }}
-      previous-version: ${{ steps.startup.outputs.previous-version }}
+      previous_version: ${{ steps.startup.outputs.previous_version }}
       reference: ${{ steps.startup.outputs.reference }}
     steps:
       - uses: actions/checkout@v2
