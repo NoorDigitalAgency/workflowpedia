@@ -21,6 +21,9 @@ on:
       previous-release-version:
         description: The previous version information used for generating change logs
         value: ${{ jobs.startup.outputs.previous-version }}
+      reference:
+        description: Git reference to be checked out
+        value: ${{ jobs.startup.outputs.reference }}
 jobs:
   startup:
     runs-on: ubuntu-20.04
@@ -28,6 +31,7 @@ jobs:
     outputs:
       version: ${{ steps.startup.outputs.version }}
       previous-version: ${{ steps.startup.outputs.previous-version }}
+      reference: ${{ steps.startup.outputs.reference }}
     steps:
       - uses: actions/checkout@v2
         name: Initial Checkout
@@ -39,14 +43,3 @@ jobs:
           reference: ${{ inputs.reference }} # If the release's source is anything other than the previous stage's latest release
           hotfix: ${{ inputs.hotfix }} # If it is a hotfix release or not
           token: ${{ github.token }} # GitHub token for accessing the APIs
-      - run: |
-          echo '${{ steps.startup.outputs.version }}'
-          echo '${{ steps.startup.outputs.previous-version }}'
-      - uses: actions/checkout@v2
-        name: Release Checkout
-        with:
-          ref: ${{ steps.startup.outputs.reference }}
-          submodules: 'recursive'
-      - run: |
-          ls -la
-          cat README.md
