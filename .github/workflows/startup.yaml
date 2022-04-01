@@ -11,13 +11,23 @@ on:
         type: string
         default: ''
       hotfix:
-        description: Is hotfix
+        description: Is a hotfix
         type: boolean
         default: false
+    outputs:
+      release-version:
+        description: The version information generated to be used for the release
+        value: ${{ jobs.startup.outputs.version }}
+      previous-release-version:
+        description: The previous version information used for generating change logs
+        value: ${{ jobs.startup.outputs.previous-version }}
 jobs:
-  checkout:
+  startup:
     runs-on: ubuntu-20.04
-    name: Checkout
+    name: Startup
+    outputs:
+      version: ${{ steps.startup.outputs.version }}
+      previous-version: ${{ steps.startup.outputs.previous-version }}
     steps:
       - uses: actions/checkout@v2
         name: Initial Checkout
@@ -25,13 +35,13 @@ jobs:
         id: startup
         name: Startup
         with:
-          stage: ${{ inputs.stage }}
-          reference: ${{ inputs.reference }}
-          hotfix: ${{ inputs.hotfix }}
-          github_token: ${{ github.token }}
+          stage: ${{ inputs.stage }} # What stage is the release targeting (main for hotfixes)
+          reference: ${{ inputs.reference }} # If the release's source is anything other than the previous stage's latest release
+          hotfix: ${{ inputs.hotfix }} # If it is a hotfix release or not
+          token: ${{ github.token }} # GitHub token for accessing the APIs
       - run: |
           echo '${{ steps.startup.outputs.version }}'
-          echo '${{ steps.startup.outputs.previous_version }}'
+          echo '${{ steps.startup.outputs.previous-version }}'
       - uses: actions/checkout@v2
         name: Release Checkout
         with:
