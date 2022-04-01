@@ -20,9 +20,7 @@ jobs:
     name: Checkout
     steps:
       - uses: actions/checkout@v2
-        name: Branch Checkout
-        with:
-          submodules: 'recursive'
+        name: Initial Checkout
       - uses: NoorDigitalAgency/release-startup@main
         id: startup
         name: Startup
@@ -33,7 +31,7 @@ jobs:
           github_token: ${{ github.token }}
       - run: |
           echo '${{ steps.startup.outputs.version }}'
-          echo '${{ steps.startup.outputs.previousVersion }}'
+          echo '${{ steps.startup.outputs.previous_version }}'
       - uses: actions/checkout@v2
         name: Commit Checkout
         with:
