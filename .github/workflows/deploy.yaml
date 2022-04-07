@@ -65,7 +65,7 @@ jobs:
       - name: Docker Hub Push
         uses: docker/build-push-action@v2
         with:
-          context: './${{ inputs.deployment_folder_artifact }}'
+          context: .
           push: true
           tags: ${{ fromJson(steps.analyzing.outputs.result).tags }}
           build-args: E20R_ENV=${{ inputs.stage }}
