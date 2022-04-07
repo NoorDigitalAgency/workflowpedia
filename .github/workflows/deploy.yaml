@@ -22,10 +22,6 @@ on:
         description: Kubectl Version
         type: string
         default: v1.21.11
-      dawn_artifact:
-        description: Dawn Action Artifact Name
-        type: string
-        default: dawn-outputs
     secrets:
       docker_hub_username:
         description: Docker Hub Username
@@ -41,9 +37,9 @@ jobs:
     runs-on: ubuntu-20.04
     name: Deploy
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: NoorDigitalAgency/midday@main
         with:
-          name: ${{ inputs.dawn_artifact }}
+          token: ${{ github.token }}
       - uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.deployment_folder_artifact }}
@@ -52,8 +48,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const fs = require('fs');
-            const { version } = JSON.parse(fs.readFileSync('${{ inputs.dawn_artifact }}.json'));
+            const version = process.env.RELEASE_VERSION;
             const stage = '${{ inputs.stage }}';
             const resource = '${{ inputs.resource_type }}';
             const name = context.payload.repository.name;
