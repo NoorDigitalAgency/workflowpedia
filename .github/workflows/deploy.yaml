@@ -23,10 +23,10 @@ on:
         type: string
         default: v1.21.11
     secrets:
-      docker_hub_username:
+      dockerhub_username:
         description: Docker Hub Username
         required: false
-      docker_hub_password:
+      dockerhub_password:
         description: Docker Hub Password
         required: false
       kube_config:
@@ -60,8 +60,8 @@ jobs:
       - name: Docker Hub Login
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.docker_hub_username }}
-          password: ${{ secrets.docker_hub_password }}
+          username: ${{ secrets.dockerhub_username }}
+          password: ${{ secrets.dockerhub_password }}
       - name: Docker Hub Push
         uses: docker/build-push-action@v2
         with:
