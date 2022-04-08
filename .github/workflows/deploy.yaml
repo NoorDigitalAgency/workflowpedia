@@ -26,8 +26,8 @@ on:
       dockerhub_username:
         description: Docker Hub Username
         required: false
-      dockerhub_password:
-        description: Docker Hub Password
+      dockerhub_token:
+        description: Docker Hub Token
         required: false
       kube_config:
         description: Base64 Encoded Kube Config File
@@ -61,7 +61,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.dockerhub_username }}
-          password: ${{ secrets.dockerhub_password }}
+          password: ${{ secrets.dockerhub_token }}
       - name: Docker Hub Push
         uses: docker/build-push-action@v2
         with:
